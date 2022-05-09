@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 
 import secure from "assets/npcs/synced.gif";
 import { Context } from "../GoblinProvider";
+import { CONFIG } from "lib/config";
 import { metamask } from "lib/blockchain/metamask";
 import { shortAddress } from "features/farming/hud/components/Address";
 
@@ -11,12 +12,12 @@ export const Withdrawn: React.FC = () => {
 
   const addTokenToMetamask = async () => {
     try {
-      await window.ethereum.request({
+      const wasAdded = await window.ethereum.request({
         method: "wallet_watchAsset",
         params: {
           type: "ERC20",
           options: {
-            address: "0xD1f9c58e33933a993A3891F8acFe05a68E1afC05",
+            address: CONFIG.TOKEN_CONTRACT,
             symbol: "SFL",
             decimals: 18,
             image:
@@ -24,8 +25,15 @@ export const Withdrawn: React.FC = () => {
           },
         },
       });
+      if (wasAdded) {
+        console.log("The SFL token successfully added to your wallet!");
+      } else {
+        console.log(
+          "Something went wrong adding the SFL token to your wallet. Please try again."
+        );
+      }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
