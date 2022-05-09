@@ -10,7 +10,7 @@ import { shortAddress } from "features/farming/hud/components/Address";
 export const Withdrawn: React.FC = () => {
   const { goblinService } = useContext(Context);
 
-  const addTokenToMetamask = async () => {
+  const addSflToMetamaskList = async () => {
     try {
       const wasAdded = await window.ethereum.request({
         method: "wallet_watchAsset",
