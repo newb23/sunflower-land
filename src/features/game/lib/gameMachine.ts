@@ -110,7 +110,6 @@ export type BlockchainState = {
   value:
     | "loading"
     | "playing"
-    | "readonly"
     | "autosaving"
     | "syncing"
     | "synced"
@@ -132,16 +131,11 @@ export type MachineInterpreter = Interpreter<
 
 type Options = AuthContext & { isNoob: boolean };
 
-const isVisiting = () => window.location.href.includes("visit");
+// Hashed eth 0 value
+export const INITIAL_SESSION =
+  "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 export function startGame(authContext: Options) {
-  const handleInitialState = () => {
-    if (isVisiting()) {
-      return "readonly";
-    }
-    return "playing";
-  };
-
   return createMachine<Context, BlockchainEvent, BlockchainState>(
     {
       id: "gameMachine",
@@ -150,32 +144,32 @@ export function startGame(authContext: Options) {
         actions: [],
         state: EMPTY,
         onChain: EMPTY,
-        sessionId: authContext.sessionId,
+        sessionId: INITIAL_SESSION,
         offset: 0,
       },
       states: {
         loading: {
           invoke: {
-            src: async (context) => {
+            src: async () => {
+              const farmId = authContext.farmId as number;
+
               const { game: onChain, owner } = await getOnChainState({
                 farmAddress: authContext.address as string,
-                id: authContext.farmId as number,
+                id: farmId,
               });
 
-              // Visit farm
-              if (isVisiting()) {
-                onChain.id = authContext.farmId as number;
-
-                return { state: onChain, onChain, owner };
-              }
+              // Get sessionId
+              const sessionId =
+                farmId &&
+                (await metamask.getSessionManager().getSessionId(farmId));
 
               // Load the farm session
-              if (context.sessionId) {
+              if (sessionId) {
                 const fingerprint = await getFingerPrint();
 
                 const response = await loadSession({
-                  farmId: Number(authContext.farmId),
-                  sessionId: context.sessionId as string,
+                  farmId,
+                  sessionId,
                   token: authContext.rawToken as string,
                 });
 
@@ -193,6 +187,7 @@ export function startGame(authContext: Options) {
                     ...game,
                     id: Number(authContext.farmId),
                   },
+                  sessionId,
                   offset,
                   whitelistedAt,
                   fingerprint,
@@ -202,16 +197,17 @@ export function startGame(authContext: Options) {
                 };
               }
 
-              return { state: INITIAL_FARM };
+              return { state: INITIAL_FARM, onChain };
             },
             onDone: [
               {
-                target: handleInitialState(),
+                target: "playing",
                 actions: assign({
                   state: (_, event) => event.data.state,
                   onChain: (_, event) => event.data.onChain,
                   owner: (_, event) => event.data.owner,
                   offset: (_, event) => event.data.offset,
+                  sessionId: (_, event) => event.data.sessionId,
                   fingerprint: (_, event) => event.data.fingerprint,
                   itemsMintedAt: (_, event) => event.data.itemsMintedAt,
                 }),
@@ -444,7 +440,6 @@ export function startGame(authContext: Options) {
             },
           },
         },
-        readonly: {},
         error: {
           on: {
             CONTINUE: "playing",

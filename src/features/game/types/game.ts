@@ -54,6 +54,8 @@ export const EASTER_EGGS: EasterEgg[] = [
 
 export type EasterBunny = "Easter Bunny";
 
+export type MOMEventItem = "Engine Core";
+
 export type InventoryItemName =
   | CropName
   | SeedName
@@ -62,11 +64,18 @@ export type InventoryItemName =
   | SkillName
   | EasterEgg
   | EasterBunny
-  | Food;
+  | Food
+  | MOMEventItem;
 
 export type Inventory = Partial<Record<InventoryItemName, Decimal>>;
 
 export type Fields = Record<number, FieldItem>;
+
+export type Chicken = {
+  fedAt: number;
+  multiplier: number;
+  reward?: Reward;
+};
 
 type PastAction = GameEvent & {
   createdAt: Date;
@@ -81,6 +90,7 @@ export interface GameState {
   stones: Record<number, Rock>;
   iron: Record<number, Rock>;
   gold: Record<number, Rock>;
+  chickens: Record<number, Chicken>;
 
   inventory: Inventory;
   stock: Inventory;

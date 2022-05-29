@@ -3,6 +3,7 @@ import { useActor } from "@xstate/react";
 import classNames from "classnames";
 import Decimal from "decimal.js-light";
 import ReCAPTCHA from "react-google-recaptcha";
+import { CONFIG } from "lib/config";
 
 import token from "assets/icons/token.gif";
 
@@ -15,6 +16,7 @@ import { ITEM_DETAILS } from "features/game/types/images";
 import { CraftableItem } from "features/game/types/craftables";
 import { InventoryItemName } from "features/game/types/game";
 import { Stock } from "components/ui/Stock";
+import { getBuyPrice } from "features/game/events/craft";
 
 interface Props {
   items: Partial<Record<InventoryItemName, CraftableItem>>;
@@ -41,15 +43,17 @@ export const CraftingItems: React.FC<Props> = ({
   ] = useActor(gameService);
   const inventory = state.inventory;
 
+  const price = getBuyPrice(selected, inventory);
+
   const lessIngredients = (amount = 1) =>
     selected.ingredients?.some((ingredient) =>
       ingredient.amount.mul(amount).greaterThan(inventory[ingredient.item] || 0)
     );
 
   const lessFunds = (amount = 1) => {
-    if (!selected.tokenAmount) return;
+    if (!price) return;
 
-    return state.balance.lessThan(selected.tokenAmount.mul(amount));
+    return state.balance.lessThan(price.mul(amount));
   };
 
   const craft = (amount = 1) => {
@@ -58,11 +62,13 @@ export const CraftingItems: React.FC<Props> = ({
       amount,
     });
 
-    setToast({ content: "SFL -$" + selected.tokenAmount?.mul(amount) });
+    setToast({ content: "SFL -$" + price?.mul(amount) });
 
     selected.ingredients?.map((ingredient) => {
+      const item = ITEM_DETAILS[ingredient.item];
       setToast({
-        content: ingredient.item + " -" + ingredient.amount.mul(amount),
+        icon: item.image,
+        content: " -" + ingredient.amount.mul(amount),
       });
     });
 
@@ -84,7 +90,7 @@ export const CraftingItems: React.FC<Props> = ({
   if (showCaptcha) {
     return (
       <ReCAPTCHA
-        sitekey="6Lfqm6MeAAAAAFS5a0vwAfTGUwnlNoHziyIlOl1s"
+        sitekey={CONFIG.RECAPTCHA_SITEKEY}
         onChange={onCaptchaSolved}
         onExpired={() => setShowCaptcha(false)}
         className="w-full m-4 flex items-center justify-center"
@@ -117,7 +123,7 @@ export const CraftingItems: React.FC<Props> = ({
       <>
         <Button
           disabled={lessFunds() || lessIngredients() || stock?.lessThan(1)}
-          className="text-xs mt-1"
+          className="text-xxs sm:text-xs mt-1 whitespace-nowrap"
           onClick={() => craft()}
         >
           Craft {isBulk && "1"}
@@ -127,7 +133,7 @@ export const CraftingItems: React.FC<Props> = ({
             disabled={
               lessFunds(10) || lessIngredients(10) || stock?.lessThan(10)
             }
-            className="text-xs mt-1 whitespace-nowrap"
+            className="text-xxs sm:text-xs mt-1 whitespace-nowrap"
             onClick={() => craft(10)}
           >
             Craft 10
@@ -196,7 +202,7 @@ export const CraftingItems: React.FC<Props> = ({
                   "text-red-500": lessFunds(),
                 })}
               >
-                {`$${selected.tokenAmount?.toNumber()}`}
+                {`$${price?.toNumber()}`}
               </span>
             </div>
           </div>

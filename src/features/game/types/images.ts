@@ -48,11 +48,17 @@ import apprenticeBeaver from "assets/nfts/apprentice_beaver.gif";
 import constructionBeaver from "assets/nfts/construction_beaver.gif";
 import mysteriousParsnip from "assets/nfts/mysterious_parsnip.png";
 import carrotSword from "assets/nfts/carrot_sword.png";
+import goldenBonsai from "assets/nfts/golden_bonsai.png";
 import nancy from "assets/nfts/nancy.png";
 import kuebiko from "assets/nfts/kuebiko.gif";
 import nyonStatue from "assets/nfts/nyon_statue.png";
 import homelessTent from "assets/nfts/homeless_tent.png";
 import farmerBath from "assets/nfts/farmer_bath.png";
+import mysteriousHead from "assets/nfts/mysterious_head.png";
+import tunnelMole from "assets/nfts/tunnel_mole.gif";
+import rockyMole from "assets/nfts/rocky_mole.gif";
+import nugget from "assets/nfts/nugget.gif";
+import rockGolem from "assets/nfts/rock_golem.gif";
 
 // Foods
 import pumpkinSoup from "assets/nfts/pumpkin_soup.png";
@@ -137,6 +143,10 @@ import orangeEgg from "src/assets/nfts/easter/orange_egg.png";
 import pinkEgg from "src/assets/nfts/easter/pink_egg.png";
 import easterBasket from "src/assets/nfts/easter/basket.png";
 import easterBunny from "src/assets/nfts/easter/easter_bunny.gif";
+
+//MOM Event
+import momCoreEngine from "src/assets/nfts/mom/engine_core.png";
+import observatory from "src/assets/nfts/mom/observatory.gif";
 
 import { InventoryItemName } from "./game";
 import {
@@ -410,6 +420,10 @@ export const ITEM_DETAILS: Items = {
     ...MARKET_ITEMS["Carrot Sword"],
     image: carrotSword,
   },
+  "Golden Bonsai": {
+    ...MARKET_ITEMS["Golden Bonsai"],
+    image: goldenBonsai,
+  },
   "Nyon Statue": {
     ...BLACKSMITH_ITEMS["Nyon Statue"],
     image: nyonStatue,
@@ -421,6 +435,26 @@ export const ITEM_DETAILS: Items = {
   "Farmer Bath": {
     ...BLACKSMITH_ITEMS["Farmer Bath"],
     image: farmerBath,
+  },
+  "Mysterious Head": {
+    ...BLACKSMITH_ITEMS["Mysterious Head"],
+    image: mysteriousHead,
+  },
+  "Tunnel Mole": {
+    ...BLACKSMITH_ITEMS["Tunnel Mole"],
+    image: tunnelMole,
+  },
+  "Rocky the Mole": {
+    ...BLACKSMITH_ITEMS["Rocky the Mole"],
+    image: rockyMole,
+  },
+  Nugget: {
+    ...BLACKSMITH_ITEMS["Nugget"],
+    image: nugget,
+  },
+  "Rock Golem": {
+    ...BLACKSMITH_ITEMS["Rock Golem"],
+    image: rockGolem,
   },
 
   // FOOD
@@ -701,5 +735,14 @@ export const ITEM_DETAILS: Items = {
   "Purple Egg": {
     description: "A purple easter egg",
     image: purpleEgg,
+  },
+
+  "Engine Core": {
+    description: "The power of the sunflower",
+    image: momCoreEngine,
+  },
+  Observatory: {
+    description: "Reach the stars and increase XP",
+    image: observatory,
   },
 };

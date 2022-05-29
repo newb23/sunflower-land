@@ -7,6 +7,7 @@ import { marketRate } from "../lib/halvening";
 import { KNOWN_IDS, KNOWN_ITEMS, LimitedItemType } from ".";
 import { OnChainLimitedItems } from "../lib/goblinMachine";
 import { isArray } from "lodash";
+import { CONFIG } from "lib/config";
 
 export { FLAGS };
 
@@ -52,6 +53,11 @@ export interface CraftableItem {
   ingredients?: Ingredient[];
   disabled?: boolean;
   requires?: InventoryItemName;
+  /**
+   * When enabled, description and price will display as "?"
+   * This is to reduce people viewing placeholder development code and assuming that is the price/buff
+   */
+  isPlaceholder?: boolean;
 }
 
 export interface LimitedItem extends CraftableItem {
@@ -61,6 +67,8 @@ export interface LimitedItem extends CraftableItem {
   mintedAt?: number;
   type?: LimitedItemType;
 }
+
+export type MOMEventItem = "Engine Core" | "Observatory";
 
 export type BlacksmithItem =
   | "Sunflower Statue"
@@ -77,7 +85,12 @@ export type BlacksmithItem =
   | "Nyon Statue"
   | "Homeless Tent"
   | "Egg Basket"
-  | "Farmer Bath";
+  | "Farmer Bath"
+  | "Mysterious Head"
+  | "Tunnel Mole"
+  | "Rocky the Mole"
+  | "Nugget"
+  | "Rock Golem";
 
 export type BarnItem =
   | "Farm Cat"
@@ -92,9 +105,15 @@ export type MarketItem =
   | "Kuebiko"
   | "Golden Cauliflower"
   | "Mysterious Parsnip"
-  | "Carrot Sword";
+  | "Carrot Sword"
+  | "Golden Bonsai";
 
-export type LimitedItemName = BlacksmithItem | BarnItem | MarketItem | Flag;
+export type LimitedItemName =
+  | BlacksmithItem
+  | BarnItem
+  | MarketItem
+  | Flag
+  | MOMEventItem;
 
 export type Tool =
   | "Axe"
@@ -238,6 +257,20 @@ export const TOOLS: Record<Tool, CraftableItem> = {
   },
 };
 
+export const ROCKET_ITEMS: Record<MOMEventItem, LimitedItem> = {
+  "Engine Core": {
+    name: "Engine Core",
+    description: "The power of the sunflower",
+    type: LimitedItemType.MOMEventItem,
+  },
+  Observatory: {
+    name: "Observatory",
+    description: "Explore the stars and improve scientific development",
+    section: Section.Observatory,
+    type: LimitedItemType.MOMEventItem,
+  },
+};
+
 export const BLACKSMITH_ITEMS: Record<BlacksmithItem, LimitedItem> = {
   "Sunflower Statue": {
     name: "Sunflower Statue",
@@ -328,6 +361,39 @@ export const BLACKSMITH_ITEMS: Record<BlacksmithItem, LimitedItem> = {
     description: "Gives access to the Easter Egg Hunt",
     type: LimitedItemType.BlacksmithItem,
   },
+  "Mysterious Head": {
+    name: "Mysterious Head",
+    description: "A statue thought to protect farmers",
+    section: Section["Mysterious Head"],
+    type: LimitedItemType.BlacksmithItem,
+  },
+  "Tunnel Mole": {
+    name: "Tunnel Mole",
+    description: "Gives a 25% increase to stone mines",
+    section: Section.Mole,
+    type: LimitedItemType.BlacksmithItem,
+  },
+  "Rocky the Mole": {
+    name: "Rocky the Mole",
+    description: "Gives a 999% increase to iron mines",
+    section: Section.Mole,
+    type: LimitedItemType.BlacksmithItem,
+    isPlaceholder: true,
+  },
+  Nugget: {
+    name: "Nugget",
+    description: "Gives a 999% increase to gold mines",
+    section: Section.Mole,
+    type: LimitedItemType.BlacksmithItem,
+    isPlaceholder: true,
+  },
+  "Rock Golem": {
+    name: "Rock Golem",
+    description: "Gives a 10% chance to get 5x stone",
+    section: Section["Rock Golem"],
+    type: LimitedItemType.BlacksmithItem,
+    isPlaceholder: true,
+  },
 };
 
 export const MARKET_ITEMS: Record<MarketItem, LimitedItem> = {
@@ -365,6 +431,13 @@ export const MARKET_ITEMS: Record<MarketItem, LimitedItem> = {
     description: "Increase chance of a mutant crop appearing",
     type: LimitedItemType.MarketItem,
   },
+  "Golden Bonsai": {
+    name: "Golden Bonsai",
+    description: "Goblins love bonsai too",
+    section: Section["Golden Bonsai"],
+    type: LimitedItemType.MarketItem,
+    isPlaceholder: true,
+  },
 };
 
 export const BARN_ITEMS: Record<BarnItem, LimitedItem> = {
@@ -399,13 +472,13 @@ export const BARN_ITEMS: Record<BarnItem, LimitedItem> = {
   },
 };
 
-export const ANIMALS: Record<Animal, CraftableItem> = {
+export const ANIMALS: () => Record<Animal, CraftableItem> = () => ({
   Chicken: {
     name: "Chicken",
     description: "Produces eggs. Requires wheat for feeding",
-    tokenAmount: new Decimal(5),
+    tokenAmount: marketRate(200),
     ingredients: [],
-    disabled: true,
+    disabled: CONFIG.NETWORK === "mainnet",
   },
   Cow: {
     name: "Cow",
@@ -428,7 +501,7 @@ export const ANIMALS: Record<Animal, CraftableItem> = {
     ingredients: [],
     disabled: true,
   },
-};
+});
 
 type Craftables = Record<CraftableName, CraftableItem>;
 
@@ -439,8 +512,9 @@ export const CRAFTABLES: () => Craftables = () => ({
   ...MARKET_ITEMS,
   ...SEEDS(),
   ...FOODS(),
-  ...ANIMALS,
+  ...ANIMALS(),
   ...FLAGS,
+  ...ROCKET_ITEMS,
 });
 
 /**
@@ -455,6 +529,7 @@ export const LIMITED_ITEMS = {
   ...BARN_ITEMS,
   ...MARKET_ITEMS,
   ...FLAGS,
+  ...ROCKET_ITEMS,
 };
 
 export const LIMITED_ITEM_NAMES = getKeys(LIMITED_ITEMS);
@@ -499,6 +574,7 @@ export const makeLimitedItemsByName = (
         mintedAt,
         type: items[name].type,
         disabled: !enabled,
+        isPlaceholder: items[name].isPlaceholder,
       };
     }
 

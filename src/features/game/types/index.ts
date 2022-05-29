@@ -5,6 +5,7 @@ export enum LimitedItemType {
   MarketItem = "MarketItem",
   BarnItem = "BarnItem",
   Flag = "Flag",
+  MOMEventItem = "MOMEventItem",
 }
 
 export const KNOWN_IDS: Record<InventoryItemName, number> = {
@@ -61,6 +62,12 @@ export const KNOWN_IDS: Record<InventoryItemName, number> = {
   "Nyon Statue": 422,
   "Farmer Bath": 423,
   "Homeless Tent": 424,
+  "Mysterious Head": 425,
+  "Golden Bonsai": 426,
+  "Rock Golem": 427,
+  "Tunnel Mole": 428,
+  "Rocky the Mole": 429,
+  Nugget: 430,
 
   "Pumpkin Soup": 501,
   "Roasted Cauliflower": 502,
@@ -143,6 +150,8 @@ export const KNOWN_IDS: Record<InventoryItemName, number> = {
   "Orange Egg": 907,
   "Green Egg": 908,
   "Easter Bunny": 909,
+  "Engine Core": 910,
+  Observatory: 911,
 };
 
 // The reverse of above

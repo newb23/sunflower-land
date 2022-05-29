@@ -9,6 +9,7 @@ import { Loading } from "features/auth/components";
 import { Animals } from "features/farming/animals/Animals";
 
 import { useInterval } from "lib/utils/hooks/useInterval";
+import * as AuthProvider from "features/auth/lib/Provider";
 
 import { Context } from "./GameProvider";
 import { Panel } from "components/ui/Panel";
@@ -30,12 +31,12 @@ import { Lore } from "./components/Lore";
 import { ClockIssue } from "./components/ClockIssue";
 import { screenTracker } from "lib/utils/screen";
 import { Resetting } from "features/auth/components/Resetting";
+import { GoblinShovel } from "features/farming/crops/components/GoblinShovel";
 
 const AUTO_SAVE_INTERVAL = 1000 * 30; // autosave every 30 seconds
 const SHOW_MODAL: Record<StateValues, boolean> = {
   loading: true,
   playing: false,
-  readonly: false,
   autosaving: false,
   syncing: true,
   synced: true,
@@ -45,6 +46,7 @@ const SHOW_MODAL: Record<StateValues, boolean> = {
 };
 
 export const Game: React.FC = () => {
+  const { authService } = useContext(AuthProvider.Context);
   const { gameService } = useContext(Context);
   const [gameState, send] = useActor(gameService);
 
@@ -73,7 +75,7 @@ export const Game: React.FC = () => {
 
     window.addEventListener("blur", save);
 
-    screenTracker.start();
+    screenTracker.start(authService);
 
     // cleanup on every gameState update
     return () => {
@@ -106,12 +108,17 @@ export const Game: React.FC = () => {
       <Crops />
       <Water />
       <Animals />
-      <Decorations />
+      <Decorations state={gameState.context.state} />
       <Forest />
       <Quarry />
       <Town />
-      <House />
+      <House
+        state={gameState.context.state}
+        playerCanLevelUp={gameState.matches("levelling")}
+        isFarming
+      />
       <Lore />
+      <GoblinShovel />
     </>
   );
 };

@@ -10,8 +10,14 @@ import { WishingWell } from "../wishingWell/WishingWell";
 import { Hud } from "../hud/Hud";
 import { Tailor } from "../tailor/Tailor";
 import { Decorations } from "../Decorations";
+import { Rocket } from "../rocket/Rocket";
+import { GoblinMachineState } from "features/game/lib/goblinMachine";
 
-export const Village: React.FC = () => {
+interface Props {
+  state: GoblinMachineState["value"];
+}
+
+export const Village: React.FC<Props> = ({ state }) => {
   return (
     <div
       style={{
@@ -34,6 +40,7 @@ export const Village: React.FC = () => {
       <WishingWell />
       <Tailor />
       <Decorations />
+      {state !== "loading" && <Rocket />}
     </div>
   );
 };
